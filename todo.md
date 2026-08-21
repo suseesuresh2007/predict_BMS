@@ -4,3 +4,5 @@
 - [x] Replace existing platform content, navigation labels, status icons, and copy with technically accurate PredictBMS language.
 - [x] Verify the revised single-viewport page on desktop and mobile and complete a production build check.
 - [ ] Save and deliver the revised project checkpoint.
+- [x] Strengthen the contrast and visual weight of the display headline and metric symbols over the video background.
+- [x] Verify the typography visibility refinement across desktop and mobile and save the updated checkpoint.

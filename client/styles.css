@@ -234,6 +234,8 @@ button { font: inherit; }
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1.12;
+  -webkit-text-stroke: 0.35px rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.96), 0 0 14px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.72);
 }
 
 .headline-line {
@@ -312,7 +314,7 @@ button { font: inherit; }
 }
 
 .stat { display: grid; justify-items: center; text-align: center; }
-.stat-symbol { min-height: clamp(25px, 3.5vw, 37px); color: #fff; font-family: var(--font-display); font-size: clamp(22px, 3vw, 33px); line-height: 1; }
+.stat-symbol { min-height: clamp(25px, 3.5vw, 37px); color: #fff; font-family: var(--font-display); font-size: clamp(22px, 3vw, 33px); line-height: 1; -webkit-text-stroke: 0.25px rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.96), 0 0 10px rgba(0, 0, 0, 0.9); }
 .stat-symbol-wide { font-size: clamp(16px, 2.35vw, 24px); padding-top: 3px; }
 .stat-value { margin-top: 6px; color: #fff; font-size: clamp(18px, 2.2vw, 26px); font-weight: 500; letter-spacing: -0.025em; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .stat-label { margin-top: 5px; color: var(--muted); font-size: clamp(11px, 1.2vw, 12.5px); line-height: 1.3; }
