@@ -14,32 +14,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
+  <body class="is-home">
     <div class="bg" aria-hidden="true">
       <video class="bg-video" autoplay muted loop playsinline>
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
       </video>
     </div>
 
-    <main class="page">
+    <main class="page home-page" data-view="home">
       <header class="site-header" aria-label="Primary navigation">
         <div class="header-inner">
-          <a class="logo-button" href="#home" aria-label="Home">
-            <img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" />
-          </a>
-
+          <a class="logo-button" href="#home" data-route="home" aria-label="PredictBMS home"><img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" /></a>
           <nav class="desktop-nav" aria-label="Desktop navigation">
-            <a class="nav-link is-active" href="#home" data-nav aria-current="page">Home</a>
-            <a class="nav-link" href="#how-it-works" data-nav>How It Works</a>
-            <a class="nav-link" href="#technology" data-nav>Technology</a>
-            <a class="nav-link" href="#about" data-nav>About</a>
+            <a class="nav-link is-active" href="#home" data-route="home" aria-current="page">Home</a>
+            <a class="nav-link" href="#dashboard" data-route="dashboard">Dashboard</a>
+            <a class="nav-link" href="#how-it-works" data-route="how-it-works">How It Works</a>
+            <a class="nav-link" href="#technology" data-route="technology">Technology</a>
+            <a class="nav-link" href="#about" data-route="about">About</a>
           </nav>
-
-          <a class="sign-in desktop-sign-in" href="#live-dashboard">Live Dashboard</a>
-
-          <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
-            <span></span><span></span><span></span>
-          </button>
+          <a class="sign-in desktop-sign-in" href="#dashboard" data-route="dashboard">Live Monitor</a>
+          <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
         </div>
       </header>
 
@@ -52,53 +46,104 @@
           </div>
           <span class="trust-pill">LIVE BATTERY INTELLIGENCE</span>
         </div>
-
-        <h1 class="headline" id="headline">
-          <span class="headline-line">Predict Before</span>
-          <span class="headline-line">It Becomes Dangerous</span>
-        </h1>
-
+        <h1 class="headline" id="headline"><span class="headline-line">Predict Before</span><span class="headline-line">It Becomes Dangerous</span></h1>
         <p class="subhead anim" style="--d: 0.28s"><span>PredictBMS continuously monitors voltage, current and temperature to</span><span>detect abnormal battery behavior before it becomes a critical event.</span></p>
         <p class="supporting-copy anim" style="--d: 0.32s">A retrofit-friendly AI layer that works alongside your existing BMS.</p>
-
-        <a class="primary-cta anim" style="--d: 0.4s" href="#analyze-battery-health">Analyze Battery Health</a>
+        <a class="primary-cta anim" style="--d: 0.4s" href="#dashboard" data-route="dashboard">Analyze Battery Health</a>
         <p class="differentiator anim" style="--d: 0.44s"><span>Reactive BMS waits for thresholds.</span><strong>PredictBMS watches for patterns.</strong></p>
       </section>
 
-      <footer class="stats-footer" aria-label="Platform metrics">
-        <article class="stat anim" style="--d: 0.5s">
-          <span class="stat-symbol" aria-hidden="true">V</span>
-          <strong class="stat-value" data-target="3" data-decimals="0" data-suffix="">0</strong>
-          <span class="stat-label">Sensor Inputs</span>
-        </article>
-        <article class="stat anim" style="--d: 0.58s">
-          <span class="stat-symbol" aria-hidden="true">AI</span>
-          <strong class="stat-value" data-target="1" data-decimals="0" data-suffix="">0</strong>
-          <span class="stat-label">Anomaly Model</span>
-        </article>
-        <article class="stat anim" style="--d: 0.66s">
-          <span class="stat-symbol" aria-hidden="true">T</span>
-          <strong class="stat-value" data-target="24" data-decimals="0" data-suffix="/7">0/7</strong>
-          <span class="stat-label">Continuous Monitoring</span>
-        </article>
-        <article class="stat anim" style="--d: 0.74s">
-          <span class="stat-symbol stat-symbol-wide" aria-hidden="true">BMS</span>
-          <strong class="stat-value" data-target="1" data-decimals="0" data-suffix="+">0+</strong>
-          <span class="stat-label">Retrofit Layer</span>
-        </article>
+      <footer class="stats-footer" aria-label="PredictBMS system architecture">
+        <article class="stat anim" style="--d: 0.5s"><span class="stat-symbol" aria-hidden="true">V</span><strong class="stat-value" data-target="3" data-decimals="0" data-suffix="">0</strong><span class="stat-label">Sensor Inputs</span></article>
+        <article class="stat anim" style="--d: 0.58s"><span class="stat-symbol" aria-hidden="true">AI</span><strong class="stat-value" data-target="1" data-decimals="0" data-suffix="">0</strong><span class="stat-label">Anomaly Model</span></article>
+        <article class="stat anim" style="--d: 0.66s"><span class="stat-symbol" aria-hidden="true">T</span><strong class="stat-value" data-target="24" data-decimals="0" data-suffix="/7">0/7</strong><span class="stat-label">Continuous Monitoring</span></article>
+        <article class="stat anim" style="--d: 0.74s"><span class="stat-symbol stat-symbol-wide" aria-hidden="true">BMS</span><strong class="stat-value" data-target="1" data-decimals="0" data-suffix="+">0+</strong><span class="stat-label">Retrofit Layer</span></article>
       </footer>
     </main>
 
-    <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" hidden>
-      <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" aria-hidden="true">
-        <a class="mobile-nav-link is-active" href="#home" data-nav aria-current="page">Home</a>
-        <a class="mobile-nav-link" href="#how-it-works" data-nav>How It Works</a>
-        <a class="mobile-nav-link" href="#technology" data-nav>Technology</a>
-        <a class="mobile-nav-link" href="#about" data-nav>About</a>
-        <a class="sign-in mobile-sign-in" href="#live-dashboard">Live Dashboard</a>
-      </nav>
-    </div>
+    <main class="product-page" data-view="dashboard" hidden>
+      <div class="product-grid" aria-hidden="true"></div>
+      <header class="shell-header" data-header="dashboard"></header>
+      <section class="dashboard-wrap" aria-labelledby="dashboard-title">
+        <div class="dashboard-toolbar reveal" style="--d: .03s">
+          <div><p class="eyebrow"><span class="live-dot"></span><span id="stream-label">LIVE SENSOR STREAM</span></p><h1 id="dashboard-title">PredictBMS Monitor</h1></div>
+          <div class="toolbar-status"><span class="micro-pill">DEMO MODE</span><span class="micro-pill is-online"><span class="tiny-dot"></span>SYSTEM ONLINE</span></div>
+        </div>
 
+        <section class="dashboard-top-grid">
+          <article class="panel battery-panel reveal" style="--d: .08s">
+            <p class="panel-kicker">BATTERY STATUS</p>
+            <div class="state-line"><span class="state-dot" id="battery-dot"></span><strong id="battery-state">NORMAL</strong></div>
+            <p id="battery-message">Battery behavior is currently within the learned operating pattern.</p>
+          </article>
+          <article class="panel risk-panel reveal" style="--d: .13s" aria-live="polite">
+            <p class="panel-kicker">PREDICTIVE RISK</p>
+            <div class="risk-number"><output id="risk-score">12</output><span>/ 100</span></div>
+            <p class="risk-interpretation" id="risk-interpretation">LOW RISK</p>
+          </article>
+          <article class="panel alert-panel reveal" style="--d: .18s">
+            <p class="panel-kicker">LOCAL ALERT</p>
+            <div class="alert-state" id="alert-state"><span class="tiny-dot"></span><span>STANDBY</span></div>
+            <div class="alert-lines"><span><i class="fa-solid fa-circle"></i> BUZZER</span><span><i class="fa-solid fa-circle"></i> LED</span></div>
+          </article>
+        </section>
+
+        <section class="telemetry-grid" aria-label="Simulated sensor telemetry">
+          <article class="panel telemetry-panel reveal" style="--d: .23s"><p class="panel-kicker">TEMPERATURE</p><strong><output id="temperature">34.8</output><span>°C</span></strong><span class="telemetry-note">Thermal sensing</span></article>
+          <article class="panel telemetry-panel reveal" style="--d: .28s"><p class="panel-kicker">VOLTAGE</p><strong><output id="voltage">48.6</output><span>V</span></strong><span class="telemetry-note">Pack voltage</span></article>
+          <article class="panel telemetry-panel reveal" style="--d: .33s"><p class="panel-kicker">CURRENT</p><strong><output id="current">8.2</output><span>A</span></strong><span class="telemetry-note">Load current</span></article>
+        </section>
+
+        <section class="panel behavior-panel reveal" style="--d: .38s" aria-labelledby="behavior-title">
+          <div class="behavior-header"><div><p class="panel-kicker" id="behavior-title">BATTERY BEHAVIOR</p><span class="normal-range-label">LEARNED NORMAL RANGE</span></div><div class="chart-tabs" role="tablist" aria-label="Telemetry metric"><button class="chart-tab is-active" role="tab" aria-selected="true" data-series="temperature">Temperature</button><button class="chart-tab" role="tab" aria-selected="false" data-series="voltage">Voltage</button><button class="chart-tab" role="tab" aria-selected="false" data-series="current">Current</button><button class="chart-tab" role="tab" aria-selected="false" data-series="risk">Risk</button></div></div>
+          <div class="chart-shell"><canvas id="behavior-chart" role="img" aria-label="Animated simulated battery telemetry within a learned normal operating range"></canvas><div class="chart-note" id="chart-note" hidden><strong>ANOMALY DETECTED</strong><span>Battery behavior is deviating from the learned normal pattern.</span><small>Risk score increasing.</small></div></div>
+        </section>
+
+        <section class="dashboard-lower-grid">
+          <article class="panel sensor-panel reveal" style="--d: .43s"><p class="panel-kicker">SENSOR STATUS</p><dl class="sensor-list"><div><dt>VOLTAGE</dt><dd><span class="tiny-dot"></span>ONLINE</dd></div><div><dt>CURRENT</dt><dd><span class="tiny-dot"></span>ONLINE</dd></div><div><dt>TEMPERATURE</dt><dd><span class="tiny-dot"></span>ONLINE</dd></div><div><dt>AI MODEL</dt><dd><span class="tiny-dot"></span>ONLINE</dd></div></dl></article>
+          <article class="panel demo-panel reveal" style="--d: .48s"><div><p class="panel-kicker">PREDICTIVE SEQUENCE</p><p id="demo-summary">Monitoring learned operating behavior.</p></div><div class="demo-actions"><button class="demo-button" id="run-demo" type="button">Run Predictive Demo</button><button class="reset-button" id="reset-demo" type="button" disabled>Reset</button></div></article>
+        </section>
+        <p class="dashboard-disclaimer reveal" style="--d: .53s">This prototype displays a simulated sensor stream for demonstration. It is intended to illustrate predictive monitoring and risk assessment, not a real vehicle telemetry connection.</p>
+      </section>
+      <footer class="site-footer" data-footer></footer>
+    </main>
+
+    <main class="product-page" data-view="how-it-works" hidden>
+      <div class="product-grid" aria-hidden="true"></div><header class="shell-header" data-header="how-it-works"></header>
+      <section class="content-wrap how-wrap" aria-labelledby="how-title">
+        <div class="product-hero"><p class="eyebrow reveal" style="--d:.04s">PREDICTIVE MONITORING</p><h1 class="display-title reveal" id="how-title" style="--d:.1s">From Battery Data<br />To Early Warning</h1><p class="product-lede reveal" style="--d:.16s">PredictBMS adds a predictive intelligence layer alongside the existing BMS to identify abnormal battery behavior before a critical threshold is reached.</p></div>
+        <ol class="pipeline" aria-label="PredictBMS detection pipeline">
+          <li class="pipeline-stage reveal" style="--d:.08s"><span class="pipeline-index">01</span><h2>Sensors</h2><p>Continuous voltage, current, and temperature sensing from the battery system.</p></li>
+          <li class="pipeline-stage reveal" style="--d:.15s"><span class="pipeline-index">02</span><h2>Data</h2><p>Signals are organized into a live behavioral picture of the pack.</p></li>
+          <li class="pipeline-stage reveal" style="--d:.22s"><span class="pipeline-index">03</span><h2>Normal Behavior</h2><p>The system learns patterns associated with normal operating behavior.</p></li>
+          <li class="pipeline-stage reveal" style="--d:.29s"><span class="pipeline-index">04</span><h2>Anomaly Detection</h2><p>Deviations from the learned pattern are identified before a hard threshold alone drives the response.</p></li>
+          <li class="pipeline-stage reveal" style="--d:.36s"><span class="pipeline-index">05</span><h2>Risk Score</h2><p>Detected deviations are translated into a continuously updated battery risk score.</p></li>
+          <li class="pipeline-stage reveal" style="--d:.43s"><span class="pipeline-index">06</span><h2>Early Warning</h2><p>The dashboard can surface an early warning and represent a local buzzer or LED backup alert.</p></li>
+        </ol>
+        <section class="layer-notes"><article class="note-row reveal" style="--d:.18s"><span>Sensor Layer</span><p>PredictBMS continuously observes voltage, current and temperature from the battery system.</p></article><article class="note-row reveal" style="--d:.26s"><span>AI Layer</span><p>The anomaly-detection layer learns patterns associated with normal battery behavior and identifies deviations from those patterns.</p></article><article class="note-row reveal" style="--d:.34s"><span>Risk Layer</span><p>Detected deviations are translated into a continuously updated battery risk score.</p></article><article class="note-row reveal" style="--d:.42s"><span>Alert Layer</span><p>When risk rises, the system provides an early warning through the dashboard and can trigger a local buzzer/LED alert.</p></article></section>
+      </section><footer class="site-footer" data-footer></footer>
+    </main>
+
+    <main class="product-page" data-view="technology" hidden>
+      <div class="product-grid" aria-hidden="true"></div><header class="shell-header" data-header="technology"></header>
+      <section class="content-wrap technology-wrap" aria-labelledby="technology-title">
+        <div class="product-hero"><p class="eyebrow reveal" style="--d:.04s">RETROFIT-FRIENDLY ARCHITECTURE</p><h1 class="display-title reveal" id="technology-title" style="--d:.1s">Predictive Intelligence<br />For EV Batteries</h1><p class="product-lede reveal" style="--d:.16s">A compact sensing and anomaly-detection layer designed to sit alongside an existing battery management system.</p></div>
+        <section class="technology-grid"><article class="tech-node reveal" style="--d:.12s"><span>01</span><h2>Sensor Monitoring</h2><p>Continuous observation of voltage, current, and temperature signals.</p></article><article class="tech-node reveal" style="--d:.18s"><span>02</span><h2>Anomaly Detection</h2><p>Pattern-based detection of behavior drifting from the learned operating range.</p></article><article class="tech-node reveal" style="--d:.24s"><span>03</span><h2>Risk Scoring</h2><p>A continuously updated risk assessment rather than a claim of certain failure.</p></article><article class="tech-node reveal" style="--d:.3s"><span>04</span><h2>Early Warning</h2><p>Earlier dashboard visibility and a visual representation of local alert readiness.</p></article><article class="tech-node reveal" style="--d:.36s"><span>05</span><h2>Retrofit Architecture</h2><p>Designed to support existing BMS control rather than require a complete hardware redesign.</p></article></section>
+        <section class="architecture-section reveal" style="--d:.2s" aria-labelledby="architecture-title"><div class="section-heading"><p class="eyebrow">SYSTEM MAP</p><h2 id="architecture-title">Existing control, extended intelligence.</h2></div><div class="architecture-diagram"><div class="arch-node arch-source">EV BATTERY</div><div class="arch-line"></div><div class="arch-node">EXISTING BMS</div><div class="arch-fork"><div class="arch-branch"><div class="arch-line"></div><div class="arch-node">NORMAL CONTROL</div></div><div class="arch-branch arch-predict"><div class="arch-line"></div><div class="arch-node is-focus">PredictBMS</div><div class="arch-line"></div><div class="arch-pair"><div class="arch-node">AI MODEL</div><div class="arch-node">RISK SCORE</div></div><div class="arch-line"></div><div class="arch-pair"><div class="arch-node">DASHBOARD</div><div class="arch-node">BUZZER / LED</div></div></div></div></div></section>
+      </section><footer class="site-footer" data-footer></footer>
+    </main>
+
+    <main class="product-page" data-view="about" hidden>
+      <div class="product-grid" aria-hidden="true"></div><header class="shell-header" data-header="about"></header>
+      <section class="content-wrap about-wrap" aria-labelledby="about-title">
+        <div class="product-hero"><p class="eyebrow reveal" style="--d:.04s">THE PREDICTBMS PROTOTYPE</p><h1 class="display-title reveal" id="about-title" style="--d:.1s">Predictive Safety<br />Starts With Better Signals</h1><p class="product-lede reveal" style="--d:.16s">PredictBMS is designed around a simple idea: battery safety should not depend only on waiting for a fixed threshold to be crossed.</p></div>
+        <section class="about-copy"><p class="reveal" style="--d:.18s">By continuously observing battery behavior and detecting deviations from normal patterns, PredictBMS aims to create an earlier window for inspection and intervention.</p></section>
+        <section class="problem-section reveal" style="--d:.25s"><p class="eyebrow">PROBLEM STATEMENT</p><h2>Thresholds tell one part of the story.</h2><p>India's rapidly growing EV fleet, particularly electric two-wheelers, has experienced battery-related fire incidents associated with thermal anomalies and battery safety concerns.</p><p>Existing BMS protection is primarily threshold-based. When a critical threshold is crossed, the available window for preventive action may already be limited.</p><p>PredictBMS addresses this gap with a low-cost, retrofit-friendly predictive layer designed to identify abnormal battery behavior earlier.</p></section>
+        <section class="evidence-section" aria-labelledby="evidence-title"><div class="section-heading reveal" style="--d:.1s"><p class="eyebrow">CONTEXT, NOT A CLAIM OF CAUSATION</p><h2 id="evidence-title">Why Early Detection Matters</h2></div><div class="evidence-row"><article class="evidence-record reveal" style="--d:.16s"><span>2023</span><strong>5,594</strong><small>EV-related accidents reported</small></article><article class="evidence-record reveal" style="--d:.22s"><span>2024</span><strong>7,817</strong><small>EV-related accidents reported</small></article><article class="evidence-record reveal" style="--d:.28s"><span>2025</span><strong>10,454</strong><small>EV-related accidents reported</small></article></div><p class="source-label reveal" style="--d:.34s">Source: MoRTH / eDAR accident reporting data</p><p class="evidence-note reveal" style="--d:.4s">Accident totals and battery-fire incidents are different datasets. PredictBMS focuses specifically on early detection of abnormal battery behavior and thermal risk.</p></section>
+      </section><footer class="site-footer" data-footer></footer>
+    </main>
+
+    <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" hidden><nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" aria-hidden="true"><a class="mobile-nav-link is-active" href="#home" data-route="home" aria-current="page">Home</a><a class="mobile-nav-link" href="#dashboard" data-route="dashboard">Dashboard</a><a class="mobile-nav-link" href="#how-it-works" data-route="how-it-works">How It Works</a><a class="mobile-nav-link" href="#technology" data-route="technology">Technology</a><a class="mobile-nav-link" href="#about" data-route="about">About</a><a class="sign-in mobile-sign-in" href="#dashboard" data-route="dashboard">Live Monitor</a></nav></div>
     <script type="module" src="/main.js"></script>
   </body>
 </html>
