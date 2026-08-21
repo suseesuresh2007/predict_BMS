@@ -1,26 +1,102 @@
 <!doctype html>
 <html lang="en">
-
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Brief-Driven Website</title>    
-    <!-- THIS IS THE START OF A COMMENT BLOCK, BLOCK TO BE DELETED: Google Fonts here, example:
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Build applications that reason, adapt and collaborate using a modular AI platform designed for production." />
+    <title>Intelligence Designed To Evolve</title>
+    <link rel="icon" type="image/png" href="/manus-storage/signal-capsule-logo-a_356f6bb8.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+    <link href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
-
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
-  </body>
+    <div class="bg" aria-hidden="true">
+      <video class="bg-video" autoplay muted loop playsinline>
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
+      </video>
+    </div>
 
+    <main class="page">
+      <header class="site-header" aria-label="Primary navigation">
+        <div class="header-inner">
+          <a class="logo-button" href="#home" aria-label="Home">
+            <img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" />
+          </a>
+
+          <nav class="desktop-nav" aria-label="Desktop navigation">
+            <a class="nav-link is-active" href="#home" data-nav aria-current="page">Home</a>
+            <a class="nav-link" href="#product" data-nav>Product</a>
+            <a class="nav-link" href="#case-studies" data-nav>Case Studies</a>
+            <a class="nav-link" href="#contact" data-nav>Contact</a>
+          </nav>
+
+          <a class="sign-in desktop-sign-in" href="#sign-in">Sign in</a>
+
+          <button class="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" id="home" aria-labelledby="headline">
+        <div class="trust-row anim" style="--d: 0.05s" aria-label="Trusted by 2000 or more enterprises">
+          <div class="trust-avatars" aria-hidden="true">
+            <span class="enterprise-avatar avatar-1"><span><i class="fa-brands fa-microsoft"></i></span></span>
+            <span class="enterprise-avatar avatar-2"><span><i class="fa-brands fa-amazon"></i></span></span>
+            <span class="enterprise-avatar avatar-3"><span><i class="fa-brands fa-google"></i></span></span>
+          </div>
+          <span class="trust-pill">Trusted by 2000+ Enterprises</span>
+        </div>
+
+        <h1 class="headline" id="headline">
+          <span class="headline-line">Intelligence</span>
+          <span class="headline-line">Designed To Evolve</span>
+        </h1>
+
+        <p class="subhead anim" style="--d: 0.28s"><span>Build applications that reason, adapt and collaborate using a modular</span><span>AI platform designed for production.</span></p>
+
+        <a class="primary-cta anim" style="--d: 0.4s" href="#get-started">Get Started</a>
+      </section>
+
+      <footer class="stats-footer" aria-label="Platform metrics">
+        <article class="stat anim" style="--d: 0.5s">
+          <span class="stat-symbol" aria-hidden="true">&lt;</span>
+          <strong class="stat-value" data-target="120" data-decimals="0" data-suffix="ms">0ms</strong>
+          <span class="stat-label">Inference Time</span>
+        </article>
+        <article class="stat anim" style="--d: 0.58s">
+          <span class="stat-symbol" aria-hidden="true">%</span>
+          <strong class="stat-value" data-target="99.99" data-decimals="2" data-suffix="%">0.00%</strong>
+          <span class="stat-label">Platform Uptime</span>
+        </article>
+        <article class="stat anim" style="--d: 0.66s">
+          <span class="stat-symbol" aria-hidden="true">*</span>
+          <strong class="stat-value" data-target="24" data-decimals="0" data-suffix="/7">0/7</strong>
+          <span class="stat-label">Autonomous Runtime</span>
+        </article>
+        <article class="stat anim" style="--d: 0.74s">
+          <span class="stat-symbol" aria-hidden="true">#</span>
+          <strong class="stat-value" data-target="2.4" data-decimals="1" data-suffix="M">0.0M</strong>
+          <span class="stat-label">Context Windows</span>
+        </article>
+      </footer>
+    </main>
+
+    <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" hidden>
+      <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" aria-hidden="true">
+        <a class="mobile-nav-link is-active" href="#home" data-nav aria-current="page">Home</a>
+        <a class="mobile-nav-link" href="#product" data-nav>Product</a>
+        <a class="mobile-nav-link" href="#case-studies" data-nav>Case Studies</a>
+        <a class="mobile-nav-link" href="#contact" data-nav>Contact</a>
+        <a class="sign-in mobile-sign-in" href="#sign-in">Sign in</a>
+      </nav>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
 </html>
