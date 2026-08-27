@@ -5,6 +5,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { extractBearerToken, hasValidSupabaseSession } from "./server/dashboardAccess";
+import { dashboardTemplate } from "./server/dashboardTemplate";
+import { resolveSupabasePublicConfig } from "./server/supabaseConfig";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -203,7 +206,42 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+function vitePluginSupabaseAuthConfig(): Plugin {
+  return {
+    name: "supabase-auth-config",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/auth/config", (_req, res) => {
+        const config = resolveSupabasePublicConfig();
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        if (!config) {
+          res.statusCode = 503;
+          res.end(JSON.stringify({ error: "Authentication configuration is unavailable." }));
+          return;
+        }
+        res.end(JSON.stringify(config));
+      });
+
+      server.middlewares.use("/api/dashboard", async (req, res) => {
+        const config = resolveSupabasePublicConfig();
+        const token = extractBearerToken(req.headers.authorization);
+        const authorized = await hasValidSupabaseSession(token, config);
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+
+        if (!authorized) {
+          res.statusCode = 401;
+          res.end(JSON.stringify({ error: "A valid Supabase session is required." }));
+          return;
+        }
+
+        res.end(JSON.stringify({ html: dashboardTemplate }));
+      });
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), vitePluginSupabaseAuthConfig()];
 
 export default defineConfig({
   plugins,
