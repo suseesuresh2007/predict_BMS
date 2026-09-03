@@ -15,13 +15,15 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body class="is-home">
+    <a class="skip-link" href="#home">Skip to main content</a>
     <div class="bg" aria-hidden="true">
-      <video class="bg-video" autoplay muted loop playsinline>
+      <video class="bg-video" autoplay muted loop playsinline aria-hidden="true">
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
       </video>
+      <span class="bg-scrim"></span>
     </div>
 
-    <main class="page home-page" data-view="home">
+    <main class="page home-page" data-view="home" id="home">
       <header class="site-header" aria-label="Primary navigation">
         <div class="header-inner">
           <a class="logo-button" href="#home" data-route="home" aria-label="PredictBMS home"><img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" /></a>
@@ -103,6 +105,7 @@
     </main>
 
     <div class="mobile-menu-backdrop" id="mobile-menu-backdrop" hidden><nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" aria-hidden="true"><a class="mobile-nav-link is-active" href="/" data-route="home" aria-current="page">Home</a><a class="mobile-nav-link" href="/dashboard" data-route="dashboard">Dashboard</a><a class="mobile-nav-link" href="/how-it-works" data-route="how-it-works">How It Works</a><a class="mobile-nav-link" href="/technology" data-route="technology">Technology</a><a class="mobile-nav-link" href="/about" data-route="about">About</a><a class="mobile-nav-link" href="/login" data-route="login">Sign In</a><a class="sign-in mobile-sign-in" href="/dashboard" data-route="dashboard">Live Monitor</a></nav></div>
+    <noscript><p class="noscript-message">PredictBMS needs JavaScript enabled to show the live battery intelligence experience.</p></noscript>
     <script type="module" src="/main.js"></script>
   </body>
 </html>
