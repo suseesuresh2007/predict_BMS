@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-import { isValidE164Phone, isValidEmail, isValidOtp, normalizePhone, resolveProtectedRoute } from "./src/authUtils";
+import { isValidEmail, resolveProtectedRoute } from "./src/authUtils";
+import { filterAndSortSignals, signalsToCsv } from "./src/signalUtils";
 
 const routes = ["home", "dashboard", "how-it-works", "technology", "about", "login", "signup"];
 const primaryNav = [
@@ -20,11 +21,17 @@ const authRoots = {
   signup: document.querySelector("#signup-root"),
 };
 const dashboard = { stage: 0, running: false, series: "temperature", score: 12, chartHandle: null, chartPhase: 0 };
-const authForms = {
-  login: { method: "email", phoneStep: "send", phone: "+91" },
-  signup: { method: "email", phoneStep: "send", phone: "+91" },
-};
-
+const signalRecords = [
+  { timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(), signal: "Temperature", reading: "34.8", unit: "°C", status: "Normal" },
+  { timestamp: new Date(Date.now() - 50 * 60 * 1000).toISOString(), signal: "Voltage", reading: "48.6", unit: "V", status: "Normal" },
+  { timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), signal: "Current", reading: "8.2", unit: "A", status: "Normal" },
+  { timestamp: new Date(Date.now() - 27 * 60 * 60 * 1000).toISOString(), signal: "Temperature", reading: "36.1", unit: "°C", status: "Watch" },
+  { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), signal: "Voltage", reading: "48.3", unit: "V", status: "Watch" },
+  { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), signal: "Current", reading: "9.1", unit: "A", status: "Watch" },
+  { timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), signal: "Temperature", reading: "40.2", unit: "°C", status: "Critical" },
+  { timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), signal: "Current", reading: "10.5", unit: "A", status: "Critical" },
+  { timestamp: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000).toISOString(), signal: "Voltage", reading: "47.7", unit: "V", status: "Critical" },
+];
 let activeRoute = "home";
 let menuOpen = false;
 let accountOpen = false;
@@ -40,7 +47,7 @@ const routePath = (route) => (route === "home" ? "/" : `/${route}`);
 const displayName = () => {
   const user = session?.user;
   if (!user) return "";
-  return user.user_metadata?.name?.trim() || user.email?.split("@")[0] || user.phone || "Account";
+  return user.user_metadata?.name?.trim() || user.email?.split("@")[0] || "Account";
 };
 const initials = () => displayName().split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "A";
 
@@ -149,24 +156,17 @@ async function mountDashboard() {
 
 function authPageTemplate(mode) {
   const isSignUp = mode === "signup";
-  const state = authForms[mode];
   const modeTitle = isSignUp ? "Create your PredictBMS account" : "Sign in to PredictBMS";
-  const emailFields = `${isSignUp ? `<label class="auth-field"><span>Name</span><input class="auth-input" name="name" autocomplete="name" required placeholder="Your name" /><small class="auth-field-error" data-error-for="name"></small></label>` : ""}<label class="auth-field"><span>Email</span><input class="auth-input" name="email" type="email" autocomplete="email" required placeholder="name@company.com" /><small class="auth-field-error" data-error-for="email"></small></label><label class="auth-field"><span>Password</span><input class="auth-input" name="password" type="password" autocomplete="${isSignUp ? "new-password" : "current-password"}" minlength="6" required placeholder="At least 6 characters" /><small class="auth-field-error" data-error-for="password"></small></label>${!isSignUp ? '<button class="auth-text-button" type="button" data-auth-action="reset-password">Forgot password?</button>' : ""}`;
-  const phoneFields = `${isSignUp ? `<label class="auth-field"><span>Name</span><input class="auth-input" name="name" autocomplete="name" required placeholder="Your name" /><small class="auth-field-error" data-error-for="name"></small></label>` : ""}<label class="auth-field"><span>Phone number</span><input class="auth-input" name="phone" type="tel" autocomplete="tel" required value="${escapeHtml(state.phone)}" placeholder="+91 98765 43210" /><small class="auth-field-error" data-error-for="phone"></small></label>${state.phoneStep === "verify" ? '<label class="auth-field"><span>6-digit OTP</span><input class="auth-input otp-input" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" /><small class="auth-field-error" data-error-for="otp"></small></label>' : ""}`;
-  const submitLabel = state.method === "phone" ? (state.phoneStep === "verify" ? (isSignUp ? "Verify & Create Account" : "Verify & Sign In") : "Send OTP") : (isSignUp ? "Create Account" : "Sign In");
+  const nameField = isSignUp ? `<label class="auth-field"><span>Name</span><input class="auth-input" name="name" autocomplete="name" required placeholder="Your name" /><small class="auth-field-error" data-error-for="name"></small></label>` : "";
   const alternate = isSignUp ? `<p class="auth-switch">Already have an account? <a href="/login" data-route="login">Sign in</a></p>` : `<p class="auth-switch">Don’t have an account? <a href="/signup" data-route="signup">Sign up</a></p>`;
 
-  return `<header class="shell-header" data-header="${mode}"></header><section class="auth-layout"><div class="auth-card"><a class="auth-logo" href="/" data-route="home" aria-label="PredictBMS home"><img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" /></a><p class="eyebrow">PREDICTBMS SECURE ACCESS</p><h1>${modeTitle}</h1><p class="auth-lede">${isSignUp ? "Start monitoring the battery signals that matter." : "Access your protected battery intelligence dashboard."}</p><div class="auth-tabs" role="tablist" aria-label="Authentication method"><button class="auth-tab ${state.method === "email" ? "is-active" : ""}" type="button" data-auth-tab="email" role="tab" aria-selected="${String(state.method === "email")}">Email</button><button class="auth-tab ${state.method === "phone" ? "is-active" : ""}" type="button" data-auth-tab="phone" role="tab" aria-selected="${String(state.method === "phone")}">Phone Number</button></div><form class="auth-form" data-auth-form="${mode}" novalidate><div class="auth-fields">${state.method === "email" ? emailFields : phoneFields}</div><p class="auth-message" data-auth-message aria-live="polite"></p><button class="primary-cta auth-submit" type="submit">${submitLabel}</button></form>${alternate}</div></section>`;
+  return `<header class="shell-header" data-header="${mode}"></header><section class="auth-layout"><div class="auth-card"><a class="auth-logo" href="/" data-route="home" aria-label="PredictBMS home"><img src="/manus-storage/signal-capsule-logo-a_356f6bb8.png" alt="" width="52" height="52" /></a><p class="eyebrow">PREDICTBMS SECURE ACCESS</p><h1>${modeTitle}</h1><p class="auth-lede">${isSignUp ? "Start monitoring the battery signals that matter." : "Access your protected battery intelligence dashboard."}</p><form class="auth-form" data-auth-form="${mode}" novalidate><div class="auth-fields">${nameField}<label class="auth-field"><span>Email</span><input class="auth-input" name="email" type="email" autocomplete="email" required placeholder="name@company.com" /><small class="auth-field-error" data-error-for="email"></small></label><label class="auth-field"><span>Password</span><input class="auth-input" name="password" type="password" autocomplete="${isSignUp ? "new-password" : "current-password"}" minlength="6" required placeholder="At least 6 characters" /><small class="auth-field-error" data-error-for="password"></small></label>${!isSignUp ? '<button class="auth-text-button" type="button" data-auth-action="reset-password">Forgot password?</button>' : ""}</div><p class="auth-message" data-auth-message aria-live="polite"></p><button class="primary-cta auth-submit" type="submit">${isSignUp ? "Create Account" : "Sign In"}</button></form>${alternate}</div></section>`;
 }
 
 function renderAuthPage(mode) {
   const root = authRoots[mode];
   if (!root) return;
   root.innerHTML = authPageTemplate(mode);
-  root.querySelectorAll("[data-auth-tab]").forEach((button) => button.addEventListener("click", () => {
-    authForms[mode].method = button.dataset.authTab;
-    renderAuthPage(mode);
-  }));
   $("[data-auth-form]", root)?.addEventListener("submit", submitAuthForm);
 }
 
@@ -192,9 +192,8 @@ function submitIssue(form, field, message) {
   else formMessage(form, message, "error");
 }
 
-function errorFieldFor(errorMessage, method) {
+function errorFieldFor(errorMessage) {
   const message = errorMessage.toLowerCase();
-  if (method === "phone") return message.includes("token") || message.includes("otp") || message.includes("code") ? "otp" : "phone";
   if (message.includes("email")) return "email";
   if (message.includes("password") || message.includes("credentials")) return "password";
   return "";
@@ -204,7 +203,6 @@ async function submitAuthForm(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const mode = form.dataset.authForm;
-  const state = authForms[mode];
   clearFormErrors(form);
   if (!supabase) {
     formMessage(form, authConfigError || "Authentication configuration is unavailable.", "error");
@@ -216,46 +214,21 @@ async function submitAuthForm(event) {
   button.disabled = true;
   button.textContent = "Working…";
   try {
-    if (state.method === "email") {
-      const email = String(values.get("email") || "").trim();
-      const password = String(values.get("password") || "");
-      const name = String(values.get("name") || "").trim();
-      if (!isValidEmail(email)) return submitIssue(form, "email", "Enter a valid email address.");
-      if (password.length < 6) return submitIssue(form, "password", "Password must contain at least 6 characters.");
-      if (mode === "signup" && !name) return submitIssue(form, "name", "Enter your name.");
-      const result = mode === "signup"
-        ? await supabase.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: `${window.location.origin}/login` } })
-        : await supabase.auth.signInWithPassword({ email, password });
-      if (result.error) return submitIssue(form, errorFieldFor(result.error.message, "email"), result.error.message);
-      if (mode === "signup" && !result.data.session) {
-        formMessage(form, "Check your email to confirm your account, then return here to sign in.", "success");
-        return;
-      }
-      session = result.data.session;
-      navigate("dashboard", { replace: true });
+    const email = String(values.get("email") || "").trim();
+    const password = String(values.get("password") || "");
+    const name = String(values.get("name") || "").trim();
+    if (!isValidEmail(email)) return submitIssue(form, "email", "Enter a valid email address.");
+    if (password.length < 6) return submitIssue(form, "password", "Password must contain at least 6 characters.");
+    if (mode === "signup" && !name) return submitIssue(form, "name", "Enter your name.");
+
+    const result = mode === "signup"
+      ? await supabase.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: `${window.location.origin}/login` } })
+      : await supabase.auth.signInWithPassword({ email, password });
+    if (result.error) return submitIssue(form, errorFieldFor(result.error.message), result.error.message);
+    if (mode === "signup" && !result.data.session) {
+      formMessage(form, "Check your email to confirm your account, then return here to sign in.", "success");
       return;
     }
-
-    const phone = normalizePhone(String(values.get("phone") || ""));
-    if (!isValidE164Phone(phone)) return submitIssue(form, "phone", "Enter a valid phone number including the country code.");
-    authForms[mode].phone = phone;
-    if (state.phoneStep === "send") {
-      const name = String(values.get("name") || "").trim();
-      if (mode === "signup" && !name) return submitIssue(form, "name", "Enter your name.");
-      const result = await supabase.auth.signInWithOtp({ phone, options: { data: mode === "signup" ? { name } : undefined } });
-      if (result.error) return submitIssue(form, "phone", result.error.message);
-      authForms[mode].phoneStep = "verify";
-      renderAuthPage(mode);
-      const nextForm = $("[data-auth-form]", authRoots[mode]);
-      formMessage(nextForm, "A verification code was sent to your phone.", "success");
-      $("[name=otp]", nextForm)?.focus();
-      return;
-    }
-
-    const token = String(values.get("otp") || "").trim();
-    if (!isValidOtp(token)) return submitIssue(form, "otp", "Enter the 6-digit verification code.");
-    const result = await supabase.auth.verifyOtp({ phone, token, type: "sms" });
-    if (result.error) return submitIssue(form, "otp", result.error.message);
     session = result.data.session;
     navigate("dashboard", { replace: true });
   } catch {
@@ -264,8 +237,7 @@ async function submitAuthForm(event) {
     const currentButton = $("button[type=submit]", form);
     if (currentButton && document.contains(form)) {
       currentButton.disabled = false;
-      const latestState = authForms[mode];
-      currentButton.textContent = latestState.method === "phone" ? (latestState.phoneStep === "verify" ? (mode === "signup" ? "Verify & Create Account" : "Verify & Sign In") : "Send OTP") : (mode === "signup" ? "Create Account" : "Sign In");
+      currentButton.textContent = mode === "signup" ? "Create Account" : "Sign In";
     }
   }
 }
@@ -364,6 +336,50 @@ const dashboardValues = [
   { temperature: 40.2, voltage: 48.0, current: 9.8, score: 54, state: "ELEVATED", interpretation: "ELEVATED RISK", message: "The pattern deviation remains elevated and is being monitored.", summary: "Risk rising. Preparing an early warning state." },
   { temperature: 41.8, voltage: 47.7, current: 10.5, score: 72, state: "HIGH RISK", interpretation: "HIGH RISK", message: "Elevated battery behavior detected before the critical threshold.", summary: "Early warning active. Local alert status represented." },
 ];
+
+function formatSignalDate(timestamp) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(timestamp));
+}
+
+function getSignalView() {
+  const statusFilter = $("#signal-status-filter")?.value || "all";
+  const dateFilter = $("#signal-date-filter")?.value || "all";
+  const sortOrder = $("#signal-sort-order")?.value || "newest";
+  return filterAndSortSignals(signalRecords, dateFilter, statusFilter, sortOrder);
+}
+
+function renderSignalTable() {
+  const tableBody = $("#signal-table-body");
+  if (!tableBody) return;
+  const records = getSignalView();
+  const sortOrder = $("#signal-sort-order")?.value || "newest";
+  tableBody.innerHTML = records.length
+    ? records.map((record) => `<tr><td><time datetime="${record.timestamp}">${formatSignalDate(record.timestamp)}</time></td><td>${record.signal}</td><td>${record.reading}<span>${record.unit}</span></td><td><span class="signal-status status-${record.status.toLowerCase()}"><span></span>${record.status}</span></td></tr>`).join("")
+    : '<tr><td class="signal-empty" colspan="4">No signals match the selected filters.</td></tr>';
+  const count = $("#signal-table-count");
+  if (count) count.textContent = `${records.length} signal${records.length === 1 ? "" : "s"}`;
+  const caption = $("#signal-table-caption");
+  if (caption) caption.textContent = `Sorted by ${sortOrder === "newest" ? "newest" : "oldest"} first`;
+}
+
+function exportSignals() {
+  const records = getSignalView();
+  const csv = `\ufeff${signalsToCsv(records)}`;
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `predictbms-signal-history-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  const button = $("#export-signals");
+  if (button) {
+    const label = button.textContent;
+    button.textContent = "Exported";
+    window.setTimeout(() => { if (button.isConnected) button.textContent = label; }, 1400);
+  }
+}
 
 function setDashboardStage(stage) {
   const next = dashboardValues[stage];
@@ -486,8 +502,11 @@ function setupDashboardInteractions() {
     dashboard.series = tab.dataset.series || "temperature";
     drawChart();
   }));
+  ["#signal-status-filter", "#signal-date-filter", "#signal-sort-order"].forEach((selector) => $(selector)?.addEventListener("change", renderSignalTable));
+  $("#export-signals")?.addEventListener("click", exportSignals);
   $("#run-demo")?.addEventListener("click", runDemo);
   $("#reset-demo")?.addEventListener("click", resetDemo);
+  renderSignalTable();
 }
 
 function runHomeStats() {
