@@ -1,0 +1,184 @@
+[
+  {
+    "order": 1,
+    "title": "Place ESP32 and set power rails",
+    "description": "Mount the ESP32 DevKit V1 on the breadboard and establish common rails.",
+    "instructions": "Insert ESP32 across the breadboard center gap. Create a common GND rail. Keep 5V and 3.3V nets separate.",
+    "components": ["esp32-devkit-v1"],
+    "holes": [],
+    "highlightComponents": ["esp32-devkit-v1"],
+    "highlightPins": ["VIN", "3V3", "GND_R"],
+    "wires": [
+      { "from": "esp32:VIN", "to": "5V_rail", "color": "red" },
+      { "from": "esp32:GND_R", "to": "GND_rail", "color": "black" }
+    ],
+    "notes": "ESP32 GPIO pins are 3.3V-only. Never feed 5V directly into GPIOs."
+  },
+  {
+    "order": 2,
+    "title": "Wire DS18B20 power safely at 3.3V",
+    "description": "Power DS18B20 from ESP32 3.3V, not 5V.",
+    "instructions": "Connect DS18B20 VCC to ESP32 3V3 and DS18B20 GND to common GND rail.",
+    "components": ["ds18b20-waterproof"],
+    "holes": [],
+    "highlightComponents": ["ds18b20-waterproof"],
+    "highlightPins": ["VCC", "GND", "DATA"],
+    "wires": [
+      { "from": "ds18b20:VCC", "to": "esp32:3V3", "color": "red" },
+      { "from": "ds18b20:GND", "to": "GND_rail", "color": "black" }
+    ],
+    "notes": "This avoids 5V logic on the 1-Wire line."
+  },
+  {
+    "order": 3,
+    "title": "Wire DS18B20 data to GPIO4",
+    "description": "Connect the temperature data line to firmware pin GPIO4.",
+    "instructions": "Connect DS18B20 DATA to ESP32 GPIO4.",
+    "components": ["ds18b20-waterproof"],
+    "holes": [],
+    "highlightComponents": [],
+    "highlightPins": ["DATA", "IO4"],
+    "wires": [
+      { "from": "ds18b20:DATA", "to": "esp32:IO4", "color": "yellow" }
+    ],
+    "notes": "Matches firmware PIN_ONEWIRE = 4."
+  },
+  {
+    "order": 4,
+    "title": "Add DS18B20 pull-up resistor",
+    "description": "The OneWire bus requires a pull-up to 3.3V.",
+    "instructions": "Place a 4.7k resistor between DS18B20 DATA and ESP32 3V3.",
+    "components": ["resistor-4700"],
+    "holes": [],
+    "highlightComponents": ["resistor-4700"],
+    "highlightPins": [],
+    "wires": [
+      { "from": "resistor-4700:pin1", "to": "ds18b20:DATA", "color": "red" },
+      { "from": "resistor-4700:pin2", "to": "esp32:3V3", "color": "red" }
+    ],
+    "notes": "Do not pull up to 5V."
+  },
+  {
+    "order": 5,
+    "title": "Power ACS712 and share ground",
+    "description": "ACS712 analog front-end runs from 5V, with common ground.",
+    "instructions": "Connect ACS712 VCC to 5V rail and ACS712 GND to common GND rail.",
+    "components": ["acs712-20a"],
+    "holes": [],
+    "highlightComponents": ["acs712-20a"],
+    "highlightPins": ["VCC", "GND", "VOUT"],
+    "wires": [
+      { "from": "acs712:VCC", "to": "5V_rail", "color": "red" },
+      { "from": "acs712:GND", "to": "GND_rail", "color": "black" }
+    ],
+    "notes": "Only VOUT goes to ESP32 ADC, and only through divider in next step."
+  },
+  {
+    "order": 6,
+    "title": "Add ACS712 output divider to protect GPIO34",
+    "description": "Scale ACS712 VOUT before entering ESP32 ADC pin.",
+    "instructions": "Place 10k from ACS712 VOUT to ADC junction node. Place 22k from ADC junction node to GND. Connect junction node to ESP32 GPIO34.",
+    "components": ["resistor-10000", "resistor-22000"],
+    "holes": [],
+    "highlightComponents": ["resistor-10000", "resistor-22000"],
+    "highlightPins": ["IO34"],
+    "wires": [
+      { "from": "acs712:VOUT", "to": "resistor-10000:pin1", "color": "orange" },
+      { "from": "resistor-10000:pin2", "to": "acs_adc_node", "color": "orange" },
+      { "from": "resistor-22000:pin1", "to": "acs_adc_node", "color": "orange" },
+      { "from": "resistor-22000:pin2", "to": "GND_rail", "color": "black" },
+      { "from": "acs_adc_node", "to": "esp32:IO34", "color": "orange" }
+    ],
+    "notes": "This is why the BOM includes 22k. Matches firmware PIN_I_SENSE = 34 and ACS divider constants."
+  },
+  {
+    "order": 7,
+    "title": "Build battery voltage divider (input side)",
+    "description": "Create pack-voltage scaling network for GPIO35.",
+    "instructions": "Place 68k resistor from BATTERY_POS node to voltage-divider junction node.",
+    "components": ["resistor-68000"],
+    "holes": [],
+    "highlightComponents": ["resistor-68000"],
+    "highlightPins": [],
+    "wires": [
+      { "from": "battery_pos", "to": "resistor-68000:pin1", "color": "red" },
+      { "from": "resistor-68000:pin2", "to": "vpack_adc_node", "color": "orange" }
+    ],
+    "notes": "Do NOT connect this 68k top node to 5V rail."
+  },
+  {
+    "order": 8,
+    "title": "Complete battery voltage divider (ground leg)",
+    "description": "Complete 68k/10k divider and route only scaled node to ADC.",
+    "instructions": "Place 10k resistor from voltage-divider junction node to GND. Connect junction node to ESP32 GPIO35.",
+    "components": ["resistor-10000"],
+    "holes": [],
+    "highlightComponents": ["resistor-10000"],
+    "highlightPins": ["IO35"],
+    "wires": [
+      { "from": "vpack_adc_node", "to": "resistor-10000:pin1", "color": "orange" },
+      { "from": "resistor-10000:pin2", "to": "GND_rail", "color": "black" },
+      { "from": "vpack_adc_node", "to": "esp32:IO35", "color": "orange" }
+    ],
+    "notes": "Matches firmware PIN_V_PACK_ADC = 35 and divider ratio (68k+10k)/10k."
+  },
+  {
+    "order": 9,
+    "title": "Wire alert LED on GPIO21",
+    "description": "Add visual warning output.",
+    "instructions": "Connect ESP32 GPIO21 to a 130Ω resistor, then to LED anode. Connect LED cathode to GND.",
+    "components": ["led-red", "resistor-130"],
+    "holes": [],
+    "highlightComponents": ["led-red", "resistor-130"],
+    "highlightPins": ["IO21", "anode", "cathode"],
+    "wires": [
+      { "from": "esp32:IO21", "to": "resistor-130:pin1", "color": "yellow" },
+      { "from": "resistor-130:pin2", "to": "led-red:anode", "color": "yellow" },
+      { "from": "led-red:cathode", "to": "GND_rail", "color": "black" }
+    ],
+    "notes": "Only red LED is used in this build."
+  },
+  {
+    "order": 10,
+    "title": "Wire buzzer on GPIO26",
+    "description": "Add audible warning output.",
+    "instructions": "Connect ESP32 GPIO26 to 100Ω resistor, then to buzzer positive pin. Connect buzzer negative pin to GND.",
+    "components": ["piezo-buzzer", "resistor-100"],
+    "holes": [],
+    "highlightComponents": ["piezo-buzzer", "resistor-100"],
+    "highlightPins": ["IO26", "plus", "minus"],
+    "wires": [
+      { "from": "esp32:IO26", "to": "resistor-100:pin1", "color": "orange" },
+      { "from": "resistor-100:pin2", "to": "piezo-buzzer:plus", "color": "orange" },
+      { "from": "piezo-buzzer:minus", "to": "GND_rail", "color": "black" }
+    ],
+    "notes": "Matches firmware PIN_BUZZ_CTRL = 26."
+  },
+  {
+    "order": 11,
+    "title": "Connect battery pack sense leads",
+    "description": "Attach pack leads to measurement front-end nodes.",
+    "instructions": "Connect battery negative to common GND rail. Connect battery positive only to the BATTERY_POS node (top of 68k resistor).",
+    "components": [],
+    "holes": [],
+    "highlightComponents": [],
+    "highlightPins": [],
+    "wires": [
+      { "from": "battery_neg", "to": "GND_rail", "color": "black" },
+      { "from": "battery_pos", "to": "BATTERY_POS", "color": "red" }
+    ],
+    "notes": "Never connect battery positive directly to GPIO35 node."
+  },
+  {
+    "order": 12,
+    "title": "5-minute safety sanity check before power-up",
+    "description": "Verify no ESP32 input can exceed 3.3V.",
+    "instructions": "Confirm: DS18 pull-up is to 3.3V, ACS VOUT goes through 10k/22k divider to GPIO34, and battery divider is 68k top + 10k bottom with GPIO35 only at divider junction. Then connect USB and run firmware.",
+    "components": [],
+    "holes": [],
+    "highlightComponents": [],
+    "highlightPins": ["IO4", "IO34", "IO35", "IO21", "IO26"],
+    "wires": [],
+    "notes": "Expected firmware pins: GPIO4 DS18B20, GPIO34 ACS712, GPIO35 Vpack, GPIO21 LED, GPIO26 buzzer."
+  }
+]

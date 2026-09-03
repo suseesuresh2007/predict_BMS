@@ -1,0 +1,80 @@
+[
+  {
+    "componentId": "esp32-devkit-v1",
+    "name": "ESP32 DevKit V1 (DOIT, 30-pin)",
+    "quantity": 1,
+    "specs": "3.3V logic MCU board"
+  },
+  {
+    "componentId": "acs712-20a",
+    "name": "ACS712-20A current sensor",
+    "quantity": 1,
+    "specs": "5V supply, 100mV/A nominal sensitivity"
+  },
+  {
+    "componentId": "ds18b20-waterproof",
+    "name": "DS18B20 temperature sensor (waterproof)",
+    "quantity": 1,
+    "specs": "1-Wire digital temperature sensor"
+  },
+  {
+    "componentId": "piezo-buzzer",
+    "name": "Piezo buzzer",
+    "quantity": 1,
+    "specs": "Active/passive buzzer with GPIO drive through series resistor"
+  },
+  {
+    "componentId": "led-red",
+    "name": "Red LED",
+    "quantity": 1,
+    "specs": "Local visual alert"
+  },
+  {
+    "componentId": "resistor-68000",
+    "name": "Resistor 68kΩ",
+    "quantity": 1,
+    "specs": "Battery voltage divider top resistor"
+  },
+  {
+    "componentId": "resistor-10000",
+    "name": "Resistor 10kΩ",
+    "quantity": 2,
+    "specs": "One for battery divider bottom, one for ACS output divider top"
+  },
+  {
+    "componentId": "resistor-22000",
+    "name": "Resistor 22kΩ",
+    "quantity": 1,
+    "specs": "ACS output divider bottom resistor"
+  },
+  {
+    "componentId": "resistor-4700",
+    "name": "Resistor 4.7kΩ",
+    "quantity": 1,
+    "specs": "DS18B20 data pull-up to 3.3V"
+  },
+  {
+    "componentId": "resistor-130",
+    "name": "Resistor 130Ω",
+    "quantity": 1,
+    "specs": "LED current-limiting resistor"
+  },
+  {
+    "componentId": "resistor-100",
+    "name": "Resistor 100Ω",
+    "quantity": 1,
+    "specs": "Buzzer series protection resistor"
+  },
+  {
+    "componentId": "capacitor-100n",
+    "name": "Capacitor 100nF",
+    "quantity": 2,
+    "specs": "Decoupling capacitors (ACS712 supply and DS18B20 local rail)"
+  },
+  {
+    "componentId": "jumper-wires",
+    "name": "Jumper wires",
+    "quantity": 1,
+    "specs": "Male-male assortment"
+  }
+]
