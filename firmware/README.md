@@ -6,6 +6,10 @@ Predictive Battery Management System using weighted risk scoring to detect therm
 
 PredictBMS is a real-time battery monitoring system that predicts thermal runaway and over-current events before they become critical. Unlike traditional BMS that trigger alerts only after hard thresholds are crossed, this system continuously calculates a weighted risk score based on temperature, current magnitude, and temperature rise rate. It provides early warnings and visual/audio alerts to prevent battery damage.
 
+## Architecture
+Sensors (DS18B20 + ACS712) → ESP32 firmware (src/main.cpp) → weighted risk score (0–100)
+→ hard-threshold safety backstop → LED/buzzer alert + web dashboard for live visualization
+
 ## Hardware
 
 - **ESP32-DevKitV1** — Main controller (Wi-Fi/Bluetooth capable)
