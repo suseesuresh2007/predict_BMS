@@ -1,51 +1,102 @@
-PredictBMS
-Predictive Battery Management System using weighted risk scoring to detect thermal runaway before it occurs.
-What it does
-PredictBMS is a real-time battery monitoring system that predicts thermal runaway and over-current events before they become critical. Unlike traditional BMS that trigger alerts only after hard thresholds are crossed, this system continuously calculates a weighted risk score based on temperature, current magnitude, and temperature rise rate. It provides early warnings and visual/audio alerts to prevent battery damage.
-Hardware
-ESP32-DevKitV1 — Main controller (Wi-Fi/Bluetooth capable)
-DS18B20 — 1-Wire temperature sensor
-ACS712-20A — Hall-effect current sensor (±20A)
-Resistors — 68kΩ, 10kΩ (x2), 22kΩ (Voltage divider network)
-LEDs — Red (Status) and Yellow (Alert)
-Active Piezo Buzzer — Audible alarm
-Capacitors — 100nF, 10µF (Stability)
-Wiring
-Pin 21 — LED Red (Status)
-Pin 26 — Buzzer (Active High)
-Pin 35 — Battery Voltage (ADC, Attenuation 11dB)
-Pin 34 — Current Sense (ACS712, Attenuation 11dB)
-Pin 4 — DS18B20 (1-Wire)
-5V / GND — Power sensors and buzzer
-How to use
-Hardware Setup: Connect the ESP32 to the breadboard and wire the sensors and output components according to the pin map in `src/config.h`.
-Power: Connect a 5V power supply to the ESP32 and sensors.
-Serial Monitor: Open the Serial Monitor at 115200 baud to view telemetry.
-Operation: The system samples every 1000ms. Watch the `RiskScore` and `ALERT` fields. If the score exceeds 60 or any hard threshold (Temp > 45°C, Current > 10A, Rise > 4°C/min) is met, the LED and buzzer will activate.
-Files
-`src/main.cpp` — Core logic, sensor reading, and predictive scoring algorithm.
-`src/config.h` — Pin definitions, electrical constants, and alert thresholds.
-`specs/bom.json` — Bill of Materials.
-`docs/steps.json` — Assembly instructions.
-`schematic/main.sch` — Schematic diagram.
-`platformio.ini` — PlatformIO project configuration.
-Hackathon Submission Overview
-Problem
-Traditional Battery Management Systems (BMS) rely on rigid, hard thresholds for safety. They typically wait until a battery has already exceeded critical temperature or current limits before triggering an alert. This reactive approach often results in thermal runaway, permanent cell damage, or safety hazards.
-Innovation
-PredictBMS introduces a predictive risk scoring algorithm. Instead of simple binary triggers, the system calculates a dynamic risk score (0–100) by combining:
-Temperature Magnitude (Weight: 45%)
-Current Load (Weight: 35%)
-Rate of Temperature Rise (Weight: 20%)
-This allows the system to flag a battery as "risky" even if absolute values haven't hit hard limits yet, providing a critical window for intervention.
-Impact
-By shifting from reactive to predictive safety, this system can significantly extend battery lifespan and prevent catastrophic failure. The use of ESP32 allows for future integration with cloud dashboards for remote fleet monitoring.
-Demo Flow
-Baseline: Initialize system. Serial output shows stable readings and a low risk score.
-Stress Test (Current): Increase load. The system detects high current; the risk score rises.
-Stress Test (Temperature): Apply heat. The system detects rising temperature and rate of change.
-Alert: Once the weighted score exceeds 60 or hard thresholds are met, the Red LED and Buzzer activate immediately.
-Future Work
-Integrate MQTT/Wi-Fi to send alerts to a smartphone app.
-Implement cell-by-cell voltage monitoring for multi-cell packs.
-Add a "Safe Mode" cutoff relay to physically disconnect the battery when risk is critical.
+# PredictBMS
+
+Predictive Battery Intelligence & Thermal Runaway Prevention System — a
+retrofittable safety layer for EV battery packs, combining ESP32-based
+sensor firmware with a real-time web monitoring dashboard.
+
+This repository contains two parts of the system:
+
+- **`/client`, `/server`, `/shared`** — the web dashboard (React +
+  Node/Express + Supabase auth) for real-time fleet monitoring, alerts,
+  and reporting
+- **`/firmware`** — the ESP32 sensor firmware, wiring, schematic, and
+  bill of materials for the physical battery-monitoring hardware
+
+---
+
+## Problem
+
+Traditional Battery Management Systems (BMS) rely on rigid, hard
+thresholds for safety. They typically wait until a battery has already
+exceeded critical temperature or current limits before triggering an
+alert. This reactive approach often results in thermal runaway,
+permanent cell damage, or safety hazards — a documented, rising concern
+in India's EV two-wheeler segment.
+
+## What PredictBMS Does
+
+PredictBMS continuously monitors voltage, current, and temperature on
+a battery pack and calculates a dynamic **weighted risk score (0–100)**
+instead of a simple pass/fail threshold:
+
+- **Temperature Magnitude** — Weight: 45%
+- **Current Load** — Weight: 35%
+- **Rate of Temperature Rise** — Weight: 20%
+
+This allows the system to flag a battery as "risky" even before any
+single value crosses a hard limit — giving a critical window to act
+before thermal runaway occurs.
+
+## Web Dashboard (`/client`, `/server`, `/shared`)
+
+A real-time monitoring interface for viewing fleet-wide battery health:
+
+- Live risk-score view per battery pack (voltage, current, temperature)
+- Alerts feed (Normal / Watch / Critical severity)
+- Reports view (risk distribution, alert trends)
+- Supabase-backed authentication (email/password)
+
+**Tech stack:** React, TypeScript, Vite, Node/Express, Supabase
+(Auth + Postgres)
+
+See [`/client`](./client) and [`/server`](./server) for source.
+
+## Firmware & Hardware (`/firmware`)
+
+The physical sensor rig that feeds real battery telemetry into the
+system.
+
+**Hardware:**
+- ESP32-DevKitV1 — main controller
+- DS18B20 — temperature sensor
+- ACS712-20A — current sensor
+- Voltage divider network (68kΩ, 10kΩ ×2, 22kΩ)
+- Status LED, alert LED, piezo buzzer
+
+**Firmware logic:** samples sensors every 1000ms, computes the
+weighted risk score, and triggers local LED/buzzer alerts when the
+score exceeds 60 or any hard threshold is breached (Temp > 45°C,
+Current > 10A, Rise > 4°C/min).
+
+Full hardware README, wiring table, and file breakdown:
+[`/firmware/README.md`](./firmware/README.md)
+
+## Demo Flow
+
+1. **Baseline** — system initializes, stable readings, low risk score
+2. **Stress test (current)** — increased load raises the risk score
+3. **Stress test (temperature)** — rising temp/rate triggers escalation
+4. **Alert** — risk score crosses 60 or a hard threshold is hit →
+   local alert (LED/buzzer) + dashboard alert fire together
+
+## Innovation
+
+- Shifts BMS behavior from **reactive** (threshold shutdown) to
+  **predictive** (continuous risk scoring)
+- **Retrofit-friendly** — designed to sit alongside an existing BMS,
+  not replace it, so it can be added to EVs already on the road
+- Combines **firmware-level detection** with a **fleet-level
+  dashboard**, rather than being a single-device gadget
+
+## Future Work
+
+- MQTT/Wi-Fi integration to push firmware alerts directly into the
+  dashboard in real time
+- Cell-by-cell voltage monitoring for multi-cell packs
+- "Safe Mode" cutoff relay to physically disconnect the battery when
+  risk is critical
+
+## Team
+
+**[Team Name]** — E-Mobility HackFest 2026, Global EV Summit &
+Innovation Conclave
