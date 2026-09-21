@@ -20,7 +20,7 @@ const authRoots = {
   login: document.querySelector("#login-root"),
   signup: document.querySelector("#signup-root"),
 };
-const dashboard = { stage: 0, running: false, series: "temperature", score: 12, chartHandle: null, chartPhase: 0 };
+const dashboard = { stage: 0, running: false, series: "temperature", score: 12, chartHandle: null, refreshHandle: null, chartPhase: 0, live: false };
 const signalRecords = [
   { timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(), signal: "Temperature", reading: "34.8", unit: "°C", status: "Normal" },
   { timestamp: new Date(Date.now() - 50 * 60 * 1000).toISOString(), signal: "Voltage", reading: "48.6", unit: "V", status: "Normal" },
@@ -268,6 +268,8 @@ async function signOut() {
   if (supabase) await supabase.auth.signOut();
   session = null;
   dashboardLoaded = false;
+  window.clearInterval(dashboard.refreshHandle);
+  dashboard.refreshHandle = null;
   dashboardRoot?.replaceChildren();
   accountOpen = false;
   renderChrome();
@@ -360,6 +362,72 @@ function renderSignalTable() {
   if (count) count.textContent = `${records.length} signal${records.length === 1 ? "" : "s"}`;
   const caption = $("#signal-table-caption");
   if (caption) caption.textContent = `Sorted by ${sortOrder === "newest" ? "newest" : "oldest"} first`;
+}
+
+function readingStatus(reading) {
+  if (reading.alert || reading.risk_score >= 60) return "Critical";
+  if (reading.risk_score >= 30) return "Watch";
+  return "Normal";
+}
+
+function recordsFromReadings(readings) {
+  return readings.flatMap((reading) => {
+    const status = readingStatus(reading);
+    return [
+      { timestamp: reading.recorded_at, signal: "Temperature", reading: Number(reading.temperature_c).toFixed(1), unit: "°C", status },
+      { timestamp: reading.recorded_at, signal: "Voltage", reading: Number(reading.battery_voltage_v).toFixed(1), unit: "V", status },
+      { timestamp: reading.recorded_at, signal: "Current", reading: Number(reading.current_a).toFixed(1), unit: "A", status },
+    ];
+  });
+}
+
+function applyLiveReading(reading) {
+  const score = Number(reading.risk_score) || 0;
+  const status = readingStatus(reading);
+  const stage = status === "Critical" ? 4 : status === "Watch" ? 2 : 0;
+  dashboard.live = true;
+  dashboard.running = false;
+  dashboard.stage = stage;
+  dashboard.score = score;
+  animateNumber($("#risk-score"), Number($("#risk-score")?.textContent || 0), score);
+  animateNumber($("#temperature"), Number($("#temperature")?.textContent || 0), Number(reading.temperature_c), 1);
+  animateNumber($("#voltage"), Number($("#voltage")?.textContent || 0), Number(reading.battery_voltage_v), 1);
+  animateNumber($("#current"), Number($("#current")?.textContent || 0), Number(reading.current_a), 1);
+  $("#stream-label").textContent = "LIVE ESP32 STREAM";
+  $("#stream-mode").textContent = "LIVE DATA";
+  $("#battery-state").textContent = status === "Critical" ? "HIGH RISK" : status === "Watch" ? "ELEVATED" : "NORMAL";
+  $("#battery-message").textContent = `Device ${reading.device_id} reported ${new Date(reading.recorded_at).toLocaleTimeString()}.`;
+  $("#risk-interpretation").textContent = status === "Critical" ? "HIGH RISK" : status === "Watch" ? "ELEVATED RISK" : "LOW RISK";
+  $("#demo-summary").textContent = `Live packet received from ${reading.device_id}. Temperature rise: ${Number(reading.temp_rise_c_per_min).toFixed(2)} °C/min.`;
+  $("#chart-note").hidden = status === "Normal";
+  $("#alert-state").classList.toggle("is-active", Boolean(reading.alert));
+  $("#alert-state span:last-child").textContent = reading.alert ? "LOCAL ALERT ACTIVE" : "STANDBY";
+  $("#battery-dot").className = `state-dot ${stage >= 4 ? "is-high" : stage >= 2 ? "is-elevated" : ""}`;
+  drawChart();
+}
+
+async function loadLiveTelemetry() {
+  if (!session || !dashboardLoaded || activeRoute !== "dashboard") return;
+  const headers = { Authorization: `Bearer ${session.access_token}` };
+  try {
+    const [latestResponse, historyResponse] = await Promise.all([
+      fetch("/api/telemetry/latest?device_id=esp32-demo-01", { headers, cache: "no-store" }),
+      fetch("/api/telemetry/history?device_id=esp32-demo-01&limit=30", { headers, cache: "no-store" }),
+    ]);
+    if (!latestResponse.ok || !historyResponse.ok) throw new Error("Telemetry read failed");
+    const latestPayload = await latestResponse.json();
+    const historyPayload = await historyResponse.json();
+    if (!latestPayload.reading) {
+      $("#stream-mode").textContent = "DEMO FALLBACK";
+      return;
+    }
+    const readings = Array.isArray(historyPayload.readings) ? historyPayload.readings : [latestPayload.reading];
+    signalRecords.splice(0, signalRecords.length, ...recordsFromReadings(readings));
+    applyLiveReading(latestPayload.reading);
+    renderSignalTable();
+  } catch {
+    if (!dashboard.live) $("#stream-mode").textContent = "DEMO FALLBACK";
+  }
 }
 
 function exportSignals() {
@@ -507,6 +575,9 @@ function setupDashboardInteractions() {
   $("#run-demo")?.addEventListener("click", runDemo);
   $("#reset-demo")?.addEventListener("click", resetDemo);
   renderSignalTable();
+  window.clearInterval(dashboard.refreshHandle);
+  void loadLiveTelemetry();
+  dashboard.refreshHandle = window.setInterval(() => { void loadLiveTelemetry(); }, 5000);
 }
 
 function runHomeStats() {

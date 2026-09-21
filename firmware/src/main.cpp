@@ -1,6 +1,9 @@
 #include <Arduino.h>
+#include <HTTPClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include "config.h"
 
 OneWire oneWire(PIN_ONEWIRE);
@@ -21,6 +24,24 @@ struct Measurements {
 static uint32_t lastSampleMs = 0;
 static float lastTempC = NAN;
 static uint32_t lastTempMs = 0;
+
+static void connectWiFi() {
+    if (WiFi.status() == WL_CONNECTED) return;
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    Serial.printf("Connecting to Wi-Fi: %s", WIFI_SSID);
+    uint32_t startedAt = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startedAt < 15000) {
+        delay(250);
+        Serial.print('.');
+    }
+    Serial.println();
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.printf("Wi-Fi connected: %s\n", WiFi.localIP().toString().c_str());
+    } else {
+        Serial.println(F("Wi-Fi unavailable; telemetry will retry."));
+    }
+}
 
 static float clamp01(float x) {
     if (x < 0.0f) return 0.0f;
@@ -120,6 +141,36 @@ static void printMeasurements(const Measurements& m) {
     Serial.println();
 }
 
+static void postTelemetry(const Measurements& m) {
+    if (isnan(m.temperatureC) || isnan(m.currentA) || isnan(m.vPack)) {
+        Serial.println(F("Telemetry skipped: one or more sensor readings are invalid."));
+        return;
+    }
+
+    connectWiFi();
+    if (WiFi.status() != WL_CONNECTED) return;
+
+    WiFiClientSecure client;
+    // Prototype mode: use a CA certificate or certificate pinning in production.
+    client.setInsecure();
+    HTTPClient http;
+    if (!http.begin(client, TELEMETRY_ENDPOINT)) {
+        Serial.println(F("Telemetry HTTP setup failed."));
+        return;
+    }
+
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Authorization", String("Bearer ") + TELEMETRY_DEVICE_TOKEN);
+    String body = String("{\"device_id\":\"") + TELEMETRY_DEVICE_ID +
+                  "\",\"temperature_c\":" + String(m.temperatureC, 2) +
+                  ",\"battery_voltage_v\":" + String(m.vPack, 2) +
+                  ",\"current_a\":" + String(m.currentA, 2) + "}";
+    int status = http.POST(body);
+    Serial.printf("Telemetry POST: HTTP %d\n", status);
+    if (status > 0) Serial.println(http.getString());
+    http.end();
+}
+
 void setup() {
     Serial.begin(115200);
     delay(200);
@@ -149,5 +200,6 @@ void loop() {
         Measurements m = readAndEvaluate();
         applyAlertOutputs(m.alert);
         printMeasurements(m);
+        postTelemetry(m);
     }
 }

@@ -14,6 +14,18 @@ describe("resolveSupabasePublicConfig", () => {
     });
   });
 
+  it("converts a Supabase dashboard project URL into its API URL", () => {
+    expect(
+      resolveSupabasePublicConfig({
+        SUPABASE_URL: "https://supabase.com/dashboard/project/exampleproject123",
+        SUPABASE_ANON_KEY: "public-anon-key",
+      }),
+    ).toEqual({
+      url: "https://exampleproject123.supabase.co",
+      anonKey: "public-anon-key",
+    });
+  });
+
   it("refuses an incomplete configuration", () => {
     expect(resolveSupabasePublicConfig({ SUPABASE_URL: "https://example.supabase.co" })).toBeNull();
     expect(resolveSupabasePublicConfig({ SUPABASE_ANON_KEY: "public-anon-key" })).toBeNull();

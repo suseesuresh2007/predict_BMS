@@ -26,6 +26,13 @@ static constexpr float ACS_SENSITIVITY_V_PER_A = 0.100f;               // 100 mV
 // Sampling
 static constexpr uint32_t SAMPLE_INTERVAL_MS = 1000;
 
+// Wi-Fi telemetry configuration. Replace these placeholders before flashing.
+static constexpr char WIFI_SSID[] = "YOUR_WIFI_SSID";
+static constexpr char WIFI_PASSWORD[] = "YOUR_WIFI_PASSWORD";
+static constexpr char TELEMETRY_ENDPOINT[] = "https://YOUR_PREDICTBMS_HOST/api/telemetry";
+static constexpr char TELEMETRY_DEVICE_ID[] = "esp32-demo-01";
+static constexpr char TELEMETRY_DEVICE_TOKEN[] = "REPLACE_WITH_TELEMETRY_DEVICE_TOKEN";
+
 // Early warning thresholds
 static constexpr float TEMP_WARN_C = 45.0f;
 static constexpr float CURRENT_WARN_A = 10.0f;
