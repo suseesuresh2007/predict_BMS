@@ -100,3 +100,7 @@ Full hardware README, wiring table, and file breakdown:
 
 **[Team Name]** — E-Mobility HackFest 2026, Global EV Summit &
 Innovation Conclave
+
+## ESP32 telemetry API
+
+The Wi-Fi ingestion endpoint, payload contract, bearer-token setup, Supabase migration, dashboard read routes, and ESP32 configuration are documented in [`TELEMETRY.md`](./TELEMETRY.md).

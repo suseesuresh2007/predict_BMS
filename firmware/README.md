@@ -72,3 +72,7 @@ By shifting from reactive to predictive safety, this system can significantly ex
 - Integrate MQTT/Wi-Fi to send alerts to a smartphone app.
 - Implement cell-by-cell voltage monitoring for multi-cell packs.
 - Add a "Safe Mode" cutoff relay to physically disconnect the battery when risk is critical.
+
+## Wi-Fi telemetry
+
+The firmware posts every valid sensor sample to the API path documented in [`../TELEMETRY.md`](../TELEMETRY.md). Before flashing, replace the Wi-Fi credentials, deployed host, device ID, and device bearer token placeholders in `src/config.h`. The server requires `Authorization: Bearer <TELEMETRY_DEVICE_TOKEN>` and accepts `device_id`, `temperature_c`, `battery_voltage_v`, and `current_a`.
